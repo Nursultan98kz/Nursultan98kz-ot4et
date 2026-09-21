@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ежедневный отчёт по продажам — ТОО «Джамиля»</title>
+<style>
+:root{--red:#ef233c;--dark:#111827;--muted:#64748b;--bg:#f4f7fa;--line:#e5e7eb;--white:#fff}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#172033}
+.app{display:flex;min-height:100vh}.side{width:220px;background:#101923;color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh}
+.brand{font-size:18px;font-weight:800;margin:0 8px 6px}.brand small{display:block;font-size:11px;color:#aab4c0;font-weight:500;margin-top:4px}
+.nav{margin-top:35px}.nav a{display:block;color:#e8edf3;text-decoration:none;padding:12px 14px;border-radius:9px;margin:6px 0}.nav a.active{background:var(--red)}
+.user{position:absolute;bottom:20px;left:16px;right:16px;border-top:1px solid #293443;padding:16px 4px;color:#fff}.user small{color:#9aa6b2;display:block;margin-top:3px}
+.main{flex:1;padding:28px;max-width:1500px;margin:auto;width:100%}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}.title h1{font-size:30px;margin:0 0 5px}.title p{margin:0;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.btn,.input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:11px 14px;font:inherit}.btn{cursor:pointer;font-weight:700}.btn.primary{background:var(--red);border-color:var(--red);color:#fff}.btn.secondary{color:#111827}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.controls label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px}.controls input{min-width:145px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--white);border:1px solid #e8edf2;border-radius:12px;padding:22px;box-shadow:0 2px 12px rgba(15,23,42,.04)}
+.kpi-title{font-weight:800;font-size:17px}.kpi{font-size:34px;font-weight:800;margin:12px 0 8px}.sub{color:var(--muted);font-size:13px}.bar{height:8px;background:#e9eef3;border-radius:10px;overflow:hidden;margin:14px 0 5px}.bar i{display:block;height:100%;background:var(--red);width:0}
+.section{margin-top:18px}.section h2{font-size:18px;margin:0 0 15px}
+.chart-wrap{height:320px}.chart{width:100%;height:100%}.legend{display:flex;gap:18px;color:var(--muted);font-size:13px;margin-bottom:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:6px}.dot.dark{background:#526174}
+.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--line)}.table th{font-size:12px;color:var(--muted);font-weight:700}.table td input{width:100%;border:1px solid var(--line);border-radius:7px;padding:9px}
+.table .sum{text-align:right}.total td{font-weight:800;background:#f8fafc}
+.hint{font-size:12px;color:var(--muted);margin-top:9px}
+@media(max-width:900px){.side{width:72px;padding:20px 10px}.brand,.nav a span,.user div{display:none}.nav a{font-size:0;text-align:center}.main{padding:18px}.grid2{grid-template-columns:1fr}.top{flex-direction:column}.title h1{font-size:25px}}
+@media print{
+ body{background:#fff}.side,.actions,.controls,.hint{display:none!important}.main{padding:0;max-width:none}.card{box-shadow:none;break-inside:avoid}.top{margin-bottom:12px}.section{margin-top:12px}.chart-wrap{height:260px}.grid2{gap:12px}.table td input{border:0;padding:0}.table th,.table td{padding:8px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand">ТОО «Джамиля»<small>Ежедневный отчёт</small></div>
+  <nav class="nav"><a class="active" href="#"><span>Главная</span>⌂</a><a href="#"><span>Продажи</span>▣</a><a href="#"><span>Заказы</span>□</a><a href="#"><span>Цеха</span>▤</a></nav>
+  <div class="user"><b>Нурсултан</b><small>Руководитель</small></div>
+</aside>
+<main class="main">
+  <header class="top">
+    <div class="title"><h1>Ежедневный отчёт по продажам</h1><p>ТОО «Джамиля»</p></div>
+    <div class="actions"><button class="btn primary" onclick="window.print()">Скачать PDF</button><button class="btn" onclick="resetAll()">Сбросить</button></div>
+  </header>
+
+  <div class="controls">
+    <label>Дата<input class="input" id="date" type="date"></label>
+  </div>
+
+  <section>
+    <div class="card">
+      <div class="kpi-title">Продажи</div>
+      <div class="kpi" id="salesView">0 ₸</div>
+      <div class="sub">Сумма реализации по всем цехам</div>
+    </div>
+  </section>
+
+  <section class="card section">
+    <h2>Динамика продаж по цехам</h2>
+    <div class="legend"><span><i class="dot"></i>Сумма реализации</span></div>
+    <div class="chart-wrap"><svg id="chart" class="chart" viewBox="0 0 900 300" preserveAspectRatio="none"></svg></div>
+  </section>
+
+  <section class="card section">
+    <h2>Детализация по цехам</h2>
+    <table class="table">
+      <thead><tr><th>Цех</th><th class="sum">Сумма реализации, ₸</th></tr></thead>
+      <tbody id="rows"></tbody>
+      <tfoot><tr class="total"><td>Итого</td><td class="sum" id="total">0 ₸</td></tr></tfoot>
+    </table>
+    <div class="hint">Введите суммы вручную. Диаграмма и итог обновляются автоматически. Для отправки директору нажмите «Скачать PDF» и выберите «Сохранить как PDF».</div>
+  </section>
+</main>
+</div>
+<script>
+const defaultRows=[['Кресельный цех',420000],['Корпусный цех',310000],['Покрасочный цех',180000],['Стульный цех',160000],['Швейный цех',140000],['Сервисный центр ТОО «Джамиля»',100000],['Склад готовой продукции (для отгрузки) Джамиля',90000]];
+const $=id=>document.getElementById(id);
+function money(n){return new Intl.NumberFormat('ru-RU').format(Math.round(n))+' ₸'}
+function buildRows(){
+  $('rows').innerHTML=defaultRows.map((r,i)=>`<tr><td>${r[0]}</td><td class="sum"><input class="workshop" data-i="${i}" type="number" min="0" value="${r[1]}"></td></tr>`).join('');
+  document.querySelectorAll('.workshop').forEach(x=>x.addEventListener('input',update));
+}
+function update(){
+  const vals=[...document.querySelectorAll('.workshop')].map(x=>Number(x.value)||0);
+  const total=vals.reduce((a,b)=>a+b,0);
+  $('salesView').textContent=money(total);
+  $('total').textContent=money(total);
+  draw(vals);
+}
+function draw(vals){
+  const svg=$('chart'), W=900,H=300,padL=55,padR=18,padT=20,padB=42;
+  const max=Math.max(...vals,1), iw=W-padL-padR, ih=H-padT-padB;
+  let s='';
+  for(let i=0;i<5;i++){const y=padT+ih*i/4; const v=Math.round(max*(1-i/4)); s+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e5e7eb"/><text x="4" y="${y+4}" font-size="12" fill="#64748b">${new Intl.NumberFormat('ru-RU',{notation:'compact'}).format(v)}</text>`}
+  const bw=Math.min(75,iw/vals.length*.55), gap=iw/vals.length;
+  vals.forEach((v,i)=>{const h=v/max*ih,x=padL+i*gap+(gap-bw)/2,y=padT+ih-h;s+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="5" fill="#ef233c"/><text x="${x+bw/2}" y="${H-15}" text-anchor="middle" font-size="12" fill="#334155">${defaultRows[i][0]}</text><text x="${x+bw/2}" y="${Math.max(12,y-7)}" text-anchor="middle" font-size="11" fill="#334155">${new Intl.NumberFormat('ru-RU',{notation:'compact'}).format(v)}</text>`});
+  svg.innerHTML=s;
+}
+function resetAll(){buildRows();update()}
+$('date').value=new Date().toISOString().slice(0,10);buildRows();document.querySelectorAll('.controls input').forEach(x=>x.addEventListener('input',update));update();
+</script>
+</body></html>
